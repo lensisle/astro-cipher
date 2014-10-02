@@ -1,0 +1,23 @@
+{
+  "name": "AstroCipher",
+  "version": "0.0.1",
+  "description": "A simple game made with Phaser",
+  "author": "Camilo Sáez",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-connect": "^0.2.0",
+    "grunt-contrib-uglify": "0.6.0",
+    "grunt-bower-task": "0.4.0",
+    "grunt-open": "0.2.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/camiloei/Astro-Cipher"
+  },
+  "keywords": [
+    "Games",
+    "Javascript",
+    "Phaser JS"
+  ]
+}
