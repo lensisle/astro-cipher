@@ -52,6 +52,8 @@ var AstroCipher = (function() {
 
       this.game.load.spritesheet('astronaut', 'assets/astronaut.png', 33, 60);
       this.game.load.spritesheet('start_platform', 'assets/startPlatform.png', 40, 6);
+      this.game.load.image('ui_share', 'assets/ui_share.png');
+      this.game.load.image('avatar', 'assets/avatar.png')
       this.game.load.image('star', 'assets/star_particle.png');
       this.game.load.image('green_block', 'assets/green_block.png');
       this.game.load.image('pink_block', 'assets/pink_block.png');
@@ -112,12 +114,6 @@ var AstroCipher = (function() {
   var PlayState = {
     create: function() {
 
-      if(store.enabled) {
-        this.bestScoreText = this.game.add.bitmapText(90, 36, 'font', "BEST 0", 64);
-      } else {
-        this.bestScoreText = this.game.add.bitmapText(90, 2, 'font', "", 64);;
-      }
-
       this.jumpSound = this.game.add.audio('jump');
       this.scoreSound = this.game.add.audio('score');
       this.pickupSound = this.game.add.audio('pickup');
@@ -133,6 +129,7 @@ var AstroCipher = (function() {
       this.canJump = true;
       this.score = 0;
       this.bestScore = 0;
+      this.alreadyDead = false;
 
       this.emitter = this.game.add.emitter(this.game.world.width, 0, 50);
       this.emitter.angle = -270;
@@ -149,14 +146,11 @@ var AstroCipher = (function() {
       this.emitter.minRotation = 0;
       this.emitter.maxRotation = 0;
 
-      this.scoreText = this.game.add.bitmapText(90, 2, 'font', "SCORE 0", 64);
-      this.levelText = this.game.add.bitmapText(90, 70, 'font', "LEVEL 1", 64);
-
       this.astronaut = this.game.add.sprite(this.game.world.centerX - 15, this.game.world.centerY - 60, 'astronaut');
       this.scaleElement(this.astronaut);
       this.astronaut.animations.add('right', [1, 2], 10, true);
 
-      this.startPlatform = this.game.add.sprite(this.game.world.centerX - 20, this.game.world.centerY + 60, 'start_platform');
+      this.startPlatform = this.game.add.sprite(this.game.world.centerX - 18, this.game.world.centerY + (this.astronaut.height / 2), 'start_platform');
       this.scaleElement(this.startPlatform);
       this.startPlatform.animations.add('idle', [0, 1, 2], 10, true);
       this.startPlatform.animations.play('idle');
@@ -209,8 +203,21 @@ var AstroCipher = (function() {
       this.blockPile = this.game.add.group();
       this.scaleElement(this.blockPile);
 
+      this.scoreText = this.game.add.bitmapText(95, 2, 'font', "SCORE 0", 64);
+      this.levelText = this.game.add.bitmapText(95, 70, 'font', "LEVEL 1", 64);
+      if(store.enabled) {
+        this.bestScoreText = this.game.add.bitmapText(95, 36, 'font', "BEST 0", 64);
+      } else {
+        this.bestScoreText = this.game.add.bitmapText(95, 2, 'font', "", 64);;
+      }
+
       this.bestScore = parseInt(this.getBestScore());
       this.setBestScoreText(this.bestScore);
+
+      this.uiShare = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'ui_share');
+      this.scaleElement(this.uiShare);
+      this.uiShare.alpha = 0;
+      this.uiShare.kill();
 
     },
     update: function() {
@@ -274,7 +281,7 @@ var AstroCipher = (function() {
           this.canJump = false;
         }
 
-        if(this.game.input.pointer1.isDown || this.game.input.mousePointer.isDown && this.canJump == true) {
+        if((this.game.input.pointer1.isDown || this.game.input.mousePointer.isDown && this.canJump == true) && this.alreadyDead == false) {
           this.astronaut.body.velocity.y = -600;
           this.lastJump = 28;
           this.playSoundSafe(this.jumpSound);
@@ -359,29 +366,40 @@ var AstroCipher = (function() {
           }
         });
 
-        if(this.blockPile.countLiving() >= 10) {
+        if(this.blockPile.countLiving() >= 10 && this.alreadyDead == false) {
 
           if(this.score >= this.bestScore) {
             store.set('bestScore', this.score.toString());
           }
 
+          this.alreadyDead = true;
           this.playSoundSafe(this.explodeSound);
-          this.game.state.start('Menu');
+          this.astronaut.kill();
+
+          this.dieSequence();
         }
 
-        if(this.astronaut.y >= (this.game.world.height - this.astronaut.height)) {
+        if(this.astronaut.y >= (this.game.world.height - this.astronaut.height) && this.alreadyDead == false) {
 
           if(this.score >= this.bestScore) {
             store.set('bestScore', this.score.toString());
           }
 
+          this.alreadyDead = true;
           this.playSoundSafe(this.explodeSound);
-          this.bestScore = this.getBestScore();
-          this.game.state.start('Menu');
+          this.astronaut.kill();
+
+          this.dieSequence();
+        }
+
+        if(this.alreadyDead == true && (this.game.input.pointer1.isDown || this.game.input.mousePointer.isDown)) {
+          this.alreadyDead = false;
+          this.game.state.start('Play');
         }
 
         if(this.score >= this.bestScore) {
           this.setBestScoreText(this.score);
+          this.bestScore = this.score;
         }
 
         this.checkPile();
@@ -470,6 +488,53 @@ var AstroCipher = (function() {
         this.started = true;
         this.astronaut.animations.play('right');
       }
+
+    },
+    dieSequence: function() {
+      var emitterTween = this.game.add.tween(this.emitter);
+      emitterTween.to({alpha: 0}, 600, null, true, 0, 0, false);
+
+      var centerScreenX = this.game.world.centerX - (this.uiShare.width / 2),
+      centerScreenY = this.game.world.centerY - (this.uiShare.height / 2);
+
+      var shareText = this.game.add.bitmapText(centerScreenX, centerScreenY, 'font', "SCORE: 0", 45),
+      shareText2 = this.game.add.bitmapText(centerScreenX, centerScreenY, 'font', "BEST: 0", 45),
+      shareText3 = this.game.add.bitmapText(centerScreenX, centerScreenY, 'font', "TAP TO REPLAY", 45);
+
+      var avatar = this.game.add.sprite(centerScreenX, centerScreenX, 'avatar');
+      avatar.x = centerScreenX + (this.uiShare.width / 11);
+      avatar.y = centerScreenY + (this.uiShare.height / 6);
+      avatar.alpha = 0;
+
+      shareText.x = centerScreenX + (this.uiShare.width / 2.4);
+      shareText.y = centerScreenY + (this.uiShare.height / 5);
+
+      shareText2.x = centerScreenX + (this.uiShare.width / 2.4);
+      shareText2.y = centerScreenY + (this.uiShare.height / 3);
+
+      shareText3.x = centerScreenX + (this.uiShare.width / 11);
+      shareText3.y = centerScreenY + (this.uiShare.height / 1.4);
+
+      shareText.alpha = 0;
+      shareText2.alpha = 0;
+      shareText3.alpha = 0;
+
+      shareText.setText("SCORE: " + this.score);
+      shareText2.setText("BEST: " + this.bestScore);
+
+      var shareTween = this.game.add.tween(this.uiShare),
+      shareTween2 = this.game.add.tween(shareText),
+      shareTween3 = this.game.add.tween(shareText2),
+      shareTween4 = this.game.add.tween(shareText3),
+      shareTween5 = this.game.add.tween(avatar);
+
+      this.uiShare.reset(centerScreenX, centerScreenY);
+
+      shareTween.to({alpha: 1}, 300, null, true, 0, 0, false).start();
+      shareTween2.to({alpha: 1}, 300, null, true, 0, 0, false).start();
+      shareTween3.to({alpha: 1}, 300, null, true, 0, 0, false).start();
+      shareTween4.to({alpha: 1}, 300, null, true, 0, 0, false).start();
+      shareTween5.to({alpha: 1}, 300, null, true, 0, 0, false).start();
 
     },
     getBestScore: function() {
