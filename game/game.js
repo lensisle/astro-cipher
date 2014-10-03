@@ -130,6 +130,7 @@ var AstroCipher = (function() {
       this.score = 0;
       this.bestScore = 0;
       this.alreadyDead = false;
+      this.canReplay = false;
 
       this.emitter = this.game.add.emitter(this.game.world.width, 0, 50);
       this.emitter.angle = -270;
@@ -392,8 +393,9 @@ var AstroCipher = (function() {
           this.dieSequence();
         }
 
-        if(this.alreadyDead == true && (this.game.input.pointer1.isDown || this.game.input.mousePointer.isDown)) {
+        if(this.alreadyDead == true && (this.game.input.pointer1.isDown || this.game.input.mousePointer.isDown) && this.canReplay == true) {
           this.alreadyDead = false;
+          this.canReplay = false;
           this.game.state.start('Play');
         }
 
@@ -522,19 +524,24 @@ var AstroCipher = (function() {
       shareText.setText("SCORE: " + this.score);
       shareText2.setText("BEST: " + this.bestScore);
 
-      var shareTween = this.game.add.tween(this.uiShare),
+      var self = this,
+      shareTween = this.game.add.tween(this.uiShare),
       shareTween2 = this.game.add.tween(shareText),
       shareTween3 = this.game.add.tween(shareText2),
       shareTween4 = this.game.add.tween(shareText3),
       shareTween5 = this.game.add.tween(avatar);
 
+      shareTween5.onComplete.add(function() {
+        self.canReplay = true;
+      }, this);
+
       this.uiShare.reset(centerScreenX, centerScreenY);
 
-      shareTween.to({alpha: 1}, 300, null, true, 0, 0, false).start();
-      shareTween2.to({alpha: 1}, 300, null, true, 0, 0, false).start();
-      shareTween3.to({alpha: 1}, 300, null, true, 0, 0, false).start();
-      shareTween4.to({alpha: 1}, 300, null, true, 0, 0, false).start();
-      shareTween5.to({alpha: 1}, 300, null, true, 0, 0, false).start();
+      shareTween.to({alpha: 1}, 500, null, true, 0, 0, false).start();
+      shareTween2.to({alpha: 1}, 500, null, true, 0, 0, false).start();
+      shareTween3.to({alpha: 1}, 500, null, true, 0, 0, false).start();
+      shareTween4.to({alpha: 1}, 500, null, true, 0, 0, false).start();
+      shareTween5.to({alpha: 1}, 500, null, true, 0, 0, false).start();
 
     },
     getBestScore: function() {
