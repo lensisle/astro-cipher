@@ -153,7 +153,7 @@ var AstroCipher = (function() {
       this.startPlatform.animations.play('idle');
 
       this.astronaut = this.game.add.sprite(this.game.world.centerX - 15, this.startPlatform.y, 'astronaut');
-      this.astronaut.y = this.startPlatform.y - this.astronaut.height * 2;
+      this.astronaut.y = this.startPlatform.y - 60 * (this.game.width / this.game.height);
       this.scaleElement(this.astronaut);
       this.astronaut.animations.add('right', [1, 2], 10, true);
 
@@ -572,7 +572,8 @@ var AstroCipher = (function() {
     render: function() {
       //this.game.debug.pointer(this.game.input.mousePointer);
       //this.game.debug.pointer(this.game.input.pointer1);
-      //this.game.debug.spriteInfo(this.astronaut, 200, 32);
+      //this.game.debug.spriteInfo(this.astronaut, 500, 32);
+      //this.game.debug.spriteInfo(this.startPlatform, 200, 400);
     },
     startEmitter: function() {
       this.emitter.start(false, 1200, 3, 0);
