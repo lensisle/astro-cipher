@@ -7,7 +7,7 @@ Clone the repository and run `npm install && grunt`.
 
 Use `grunt` to run the game. 
 
-You can find an online version of the game here: http://bit.ly/1mVMQ5N
+You can find an online version of the game here: http://bit.ly/1mVMQ5N (version outdated)
 
 ## Copyright
 
