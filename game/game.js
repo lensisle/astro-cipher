@@ -147,14 +147,15 @@ var AstroCipher = (function() {
       this.emitter.minRotation = 0;
       this.emitter.maxRotation = 0;
 
-      this.astronaut = this.game.add.sprite(this.game.world.centerX - 15, this.game.world.centerY - 60, 'astronaut');
-      this.scaleElement(this.astronaut);
-      this.astronaut.animations.add('right', [1, 2], 10, true);
-
-      this.startPlatform = this.game.add.sprite(this.game.world.centerX - 18, this.game.world.centerY + (this.astronaut.height / 2), 'start_platform');
+      this.startPlatform = this.game.add.sprite(this.game.world.centerX - 18, this.game.world.centerY, 'start_platform');
       this.scaleElement(this.startPlatform);
       this.startPlatform.animations.add('idle', [0, 1, 2], 10, true);
       this.startPlatform.animations.play('idle');
+
+      this.astronaut = this.game.add.sprite(this.game.world.centerX - 15, this.startPlatform.y, 'astronaut');
+      this.astronaut.y = this.startPlatform.y - this.astronaut.height * 2;
+      this.scaleElement(this.astronaut);
+      this.astronaut.animations.add('right', [1, 2], 10, true);
 
       this.startTween = this.game.add.tween(this.astronaut);
       this.startTween2 = this.game.add.tween(this.startPlatform);
