@@ -11,7 +11,7 @@ You can find an online version of the game here: http://bit.ly/1mVMQ5N
 
 Edit (08/05/2015)
 
-This game is now part of the #onegameamonth challenge :-)! you can find more information here: http://www.onegameamonth.com/
+This game was submitted to #onegameamonth challenge :-)! you can find more information here: http://www.onegameamonth.com/
 
 ## Copyright
 
