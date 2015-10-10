@@ -1,5 +1,5 @@
 //
-// Copyright 2014, Camilo Sáez <c4miloei@gmail.com> (@camiloei at twitter)
+// Copyright 2014 <c4miloei@gmail.com> (@camiloei at twitter)
 // All the resources (graphics, code, sounds) were made by me, except the bitmap font.
 // This software is distributed under the MIT License.
 // (See accompanying file LICENSE or copy at)
